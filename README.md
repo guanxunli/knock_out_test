@@ -1,1 +1,1 @@
-# knock_out_test
+This project is to do tests for scTenifoldKnk package.
