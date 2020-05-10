@@ -25,7 +25,7 @@ manifoldAlignment <- function (X, Y, d = 30) {
   diag(W) <- 0
   diag(W) <- -apply(W, 2, sum)
   E <- suppressWarnings(RSpectra::eigs(W, d * 2, "SM"))
-  E$values <- suppressWarnings(as.numeric(E$values))
+  E$values <- suppressWarnings(Mod(E$values))
   newOrder <- order(E$values)
   E$values <- E$values[newOrder]
   E$vectors <- E$vectors[, newOrder]
