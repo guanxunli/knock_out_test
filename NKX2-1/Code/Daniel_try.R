@@ -3,8 +3,7 @@ library(ggplot2)
 library(scTenifoldNet)
 library(Matrix)
 
-
-load("../Results/GSM3716703.RData")
+load("NKX2-1/Daniel_Results/GSM3716703.RData")
 WT <- GSM3716703$WT
 WT <- as.matrix(WT)
 gKO <- 'Nkx2-1'

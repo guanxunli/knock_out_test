@@ -1,13 +1,9 @@
 library(ggplot2)
-library(statsExpressions)
-library(patchwork)
-library(circlize)
-library(pbapply)
 library(scTenifoldNet)
 
 col_fun = colorRamp2(c(-1, 0, 1), c("blue", "white", "red"))
 
-SERGIO <- read.csv('SERGIO/simulationOutput.csv', header = FALSE)
+SERGIO <- read.csv('simulation data/SERGIO_create_sim_data/simulationOutput.csv', header = FALSE)
 rownames(SERGIO) <- paste0('G', seq_len(nrow(SERGIO)))
 colnames(SERGIO) <- paste0('C', seq_len(ncol(SERGIO)))
 
@@ -50,6 +46,7 @@ p_value_KO <- function(gKO){
   Y <- X
   Y[gKO,] <- 0
   MA <- scTenifoldNet::manifoldAlignment(X,Y)
+  MA <- MA[, 1:9]
   DR <- scTenifoldNet::dRegulation(MA)
   DR$FC <- DR$distance^2/mean(DR$distance[-seq_len(length(gKO))]^2)
   DR$p.value <- pchisq(DR$FC, df = 1, lower.tail = FALSE)
