@@ -42,8 +42,10 @@ source('https://raw.githubusercontent.com/dosorio/utilities/master/singleCell/pl
 source('https://raw.githubusercontent.com/dosorio/utilities/master/singleCell/plotKO.R')
 source('https://raw.githubusercontent.com/dosorio/utilities/master/idConvert/hsa2mmu_SYMBOL.R')
 
-load('../Results/GSE130626.RData')
+load('TREM2/Daniel_results/GSE130626.RData')
 dGenes <- GSE130626$diffRegulation$gene[GSE130626$diffRegulation$p.adj < 0.05]
+length(dGenes)
+head(dGenes)
 
 png('../Results/dr_GSE130626.png', width = 2000, height = 2000, res = 300)
 plotDR(GSE130626)

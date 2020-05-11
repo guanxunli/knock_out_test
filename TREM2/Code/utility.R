@@ -1,8 +1,58 @@
+## modify dRegulation
+dRegulation <- function (manifoldOutput) 
+{
+  geneList <- rownames(manifoldOutput)
+  geneList <- geneList[grepl("^X_", geneList)]
+  geneList <- gsub("^X_", "", geneList)
+  nGenes <- length(geneList)
+  eGenes <- nrow(manifoldOutput)/2
+  eGeneList <- rownames(manifoldOutput)
+  eGeneList <- eGeneList[grepl("^Y_", eGeneList)]
+  eGeneList <- gsub("^Y_", "", eGeneList)
+  if (nGenes != eGenes) {
+    stop("Number of identified and expected genes are not the same")
+  }
+  if (!all(eGeneList == geneList)) {
+    stop("Genes are not ordered as expected. X_ genes should be followed by Y_ genes in the same order")
+  }
+  dMetric <- sapply(seq_len(nGenes), function(G) {
+    X <- manifoldOutput[G, ]
+    Y <- manifoldOutput[(G + nGenes), ]
+    I <- rbind(X, Y)
+    O <- dist(I)
+    O <- as.numeric(O)
+    if (O == 0){
+      O <- 1e-17
+    }
+    return(O)
+  })
+  lambdaValues <- seq(-2, 2, length.out = 1000)
+  lambdaValues <- lambdaValues[lambdaValues != 0]
+  BC <- MASS::boxcox(dMetric ~ 1, plot = FALSE, lambda = lambdaValues)
+  BC <- BC$x[which.max(BC$y)]
+  if (BC < 0) {
+    nD <- 1/(dMetric^BC)
+  }
+  else {
+    nD <- dMetric^BC
+  }
+  Z <- scale(nD)
+  E <- mean(dMetric^2)
+  FC <- dMetric^2/E
+  pValues <- pchisq(q = FC, df = 1, lower.tail = FALSE)
+  pAdjusted <- p.adjust(pValues, method = "fdr")
+  dOut <- data.frame(gene = geneList, distance = dMetric, Z = Z, 
+                     FC = FC, p.value = pValues, p.adj = pAdjusted)
+  dOut <- dOut[order(dOut$p.value), ]
+  dOut <- as.data.frame.array(dOut)
+  return(dOut)
+}
+
 ## fix P-values
 # X is manifold alignment results
 # d is the dimension of MA needed
 # alpha = 0 means both 2d components, alpha = 1 means first, alpha = 2 means back d components
-fixPValues <- function(X, d = 2, alpha = 1){
+fixPValues <- function(X, d = 2, alpha = 1, gKO = "Trem2"){
   if(alpha == 1){
     X <- X[, 1:d]
   } else if(alpha == 2){
@@ -10,14 +60,19 @@ fixPValues <- function(X, d = 2, alpha = 1){
   } else if(alpha == 0){
     X <- X[, c(1:d, (ncol(X)/2 + 1):(ncol(X)/2 + d))]
   }
+  X <- as.matrix(X)
   X <- list("manifoldAlignment" = X)
-  X$diffRegulation <- scTenifoldNet::dRegulation(X$manifoldAlignment)
+  X$diffRegulation <- dRegulation(X$manifoldAlignment)
   X$diffRegulation <- X$diffRegulation[!grepl('^Rp[[:digit:]]+|^Rpl|^Rps|^mt-', X$diffRegulation$gene, ignore.case = TRUE),]
-  D <- X$diffRegulation$distance[-1]
-  X$diffRegulation$FC <- X$diffRegulation$distance^2/mean(D^2)
-  X$diffRegulation$p.value <- pchisq(X$diffRegulation$FC, df = 1, lower.tail = FALSE)
-  X$diffRegulation$p.adj <- p.adjust(X$diffRegulation$p.value, method = 'fdr')
-  return(X)
+  if (X$diffRegulation$gene[1] == gKO){
+    D <- X$diffRegulation$distance[-1]
+    X$diffRegulation$FC <- X$diffRegulation$distance^2/mean(D^2)
+    X$diffRegulation$p.value <- pchisq(X$diffRegulation$FC, df = 1, lower.tail = FALSE)
+    X$diffRegulation$p.adj <- p.adjust(X$diffRegulation$p.value, method = 'fdr')
+    return(X)
+  } else{
+    return(X)
+  }
 }
 
 ## erichment analysis
@@ -36,35 +91,8 @@ enrichFunction <- function(gList, fdrThreshold = 0.05, nCategories = 20){
     X <- gsub('[[:blank:]]$','',X)
     return(X)
   }))
-  ## select Set
-  # selectedSet <- rep(FALSE, nrow(E))
-  # for(i in seq_len(nrow(E))){
-  #   if(i == 1){
-  #     selectedSet[i] <- TRUE
-  #   } else {
-  #     A <- unique(unlist(strsplit(E[which(selectedSet[seq_len(i)]),'Genes'], ';')))
-  #     B <- unlist(strsplit(E[i,'Genes'], ';'))
-  #     selectedSet[i] <- !all(B %in% A)
-  #   }
-  # }
-  # gSets <- table(toupper(E$Term))
-  # gSets <- names(gSets[gSets > 1])
-  # for(i in gSets){
-  #   selectedSet[which(toupper(E$Term) %in% i)[-1]] <- FALSE
-  # }
-  # E <- E[selectedSet,]
-  # if(nrow(E) > nCategories){
-  #   E <- E[seq_len(nCategories),]  
-  # }
-  
-  ## print results
-  name_need <- c("GO_Cellular_Component_2018.1", "Reactome_2016.1", "BioPlanet_2019.1",
-                 "GO_Cellular_Component_2018.4", "GO_Cellular_Component_2018.2")
-  term_need <- c("Lamellar body", "Surfactant metabolism", "Cell adhesion molecules", "Multivesicular body lumen", "Lysosome")
-  index1 <- which(rownames(E) %in% name_need)
-  index2 <- which(E$Term %in% term_need)
-  index <- intersect(index1, index2)
-  print(c(nrow(E), index))
+  E <- E[E$Term %in% c('Oxidative phosphorylation','Alzheimer disease','Cholesterol metabolism','Lysosome','Neutrophil mediated immunity'),]
+  print(length(unique(E$Term)))
   return(E)
 }
 
@@ -75,7 +103,11 @@ enrichFunction <- function(gList, fdrThreshold = 0.05, nCategories = 20){
 # threshold for fdr
 check_fun <- function(X, d = 2, alpha = 1, fdrThreshold = 0.05, nCategories = 20){
   X <- fixPValues(X, d = d, alpha = alpha)
+  # dGenes <- X$diffRegulation$gene[X$diffRegulation$p.value < 0.05]
   dGenes <- X$diffRegulation$gene[X$diffRegulation$p.adj < 0.05]
+  if (length(dGenes) == 0){
+    stop("No significiant genes.")
+  }
   # print(c(length(dGenes), length(intersect(markerGenes, dGenes))))
   ## enrichment analysis
   E <- enrichFunction(dGenes, fdrThreshold = fdrThreshold, nCategories = nCategories)
@@ -85,6 +117,7 @@ check_fun <- function(X, d = 2, alpha = 1, fdrThreshold = 0.05, nCategories = 20
   return(out_list)
 }
 
+## check sencitivity
 check_sensitivity <- function(X, d_index, alpha = 1, fdrThreshold = 0.05, nCategories = 20){
   out_all_list <- list()
   for (i in 1:length(d_index)){
@@ -93,6 +126,30 @@ check_sensitivity <- function(X, d_index, alpha = 1, fdrThreshold = 0.05, nCateg
   return(out_all_list)
 }
 
+# X is result from check_sencitivity function
+plot_sencitivity <- function(X){
+  n_list <- length(X)
+  n_gene_find <- rep(0, n_list)
+  n_path_mean <- rep(0, n_list)
+  for (i in 1:n_list){
+    tmp <- X[[i]]
+    gList <- tmp$gene
+    n_gene_find[i] <- length(gList)
+    E <- tmp$enrich
+    E <- E[E$Term %in% c('Oxidative phosphorylation','Alzheimer disease','Cholesterol metabolism','Lysosome','Neutrophil mediated immunity'),]
+    n_path_mean[i] <- length(unique(E$Term))
+  }
+  A <- ggplot(data = NULL, aes(x = c(1:10), y = n_gene_find)) + 
+    geom_line() + geom_point() +
+    labs(x = "d", y = "number of genes")
+  B <- ggplot(data = NULL, aes(x = c(1:10), y = n_path_mean)) + 
+    geom_line() + geom_point() +
+    labs(x = "d", y = "number of pathways")
+  library(gridExtra)
+  return(grid.arrange(A, B, nrow = 1))
+}
+
 check_intersect <- function(gList1, gList2){
   return(c(length(gList1), length(gList2), length(intersect(gList1, gList2))))
 }
+
