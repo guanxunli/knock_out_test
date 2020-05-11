@@ -48,7 +48,7 @@ library(ggplot2)
 source('https://raw.githubusercontent.com/dosorio/utilities/master/singleCell/plotDR.R')
 source('https://raw.githubusercontent.com/dosorio/utilities/master/singleCell/plotKO.R')
 
-load('../Results/SRS4245406.RData')
+load('CFTR/Daniel_results/SRS4245406.RData')
 
 write.csv(SRS4245406$diffRegulation, file = '../Results/scTenifoldKnk_SRS4245406.csv', row.names = FALSE, quote = FALSE)
 png('../Results/drSRS4245406.png', width = 2000, height = 2000, res = 300, pointsize = 20)
