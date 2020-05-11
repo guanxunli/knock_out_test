@@ -1,0 +1,46 @@
+source("simulation data/utlity.R")
+
+SERGIO <- read.csv('simulation data/SERGIO_create_sim_data/simulationOutput.csv', header = FALSE)
+rownames(SERGIO) <- paste0('G', seq_len(nrow(SERGIO)))
+colnames(SERGIO) <- paste0('C', seq_len(ncol(SERGIO)))
+
+countMatrix <- SERGIO
+set.seed(1)
+X <- scTenifoldNet::makeNetworks(countMatrix, q = 0.9)
+set.seed(1)
+X <- scTenifoldNet::tensorDecomposition(X)
+X <- X$X
+X <- as.matrix(X)
+
+## not-normalized method
+g_res <- fix_pvalue(X = X, gKO = 20, d = 3, alpha = 2)
+g_list <- g_res$gene
+g_true <- paste0("G", 16:40)
+check_intersect(g_list, g_true)
+
+g_res <- fix_pvalue(X = X, gKO = 50, d = 20, alpha = 2)
+g_list <- g_res$gene
+g_true <- paste0("G", 41:80)
+check_intersect(g_list, g_true)
+
+g_res <- fix_pvalue(X = X, gKO = 100, d = 3, alpha = 2)
+g_list <- g_res$gene
+g_true <- paste0("G", 81:100)
+check_intersect(g_list, g_true)
+
+## normalized method
+g_res <- fix_pvalue(X = X, gKO = 20, d = 3, alpha = 2, normalize = TRUE)
+g_list <- g_res$gene
+g_true <- paste0("G", 16:40)
+check_intersect(g_list, g_true)
+
+g_res <- fix_pvalue(X = X, gKO = 50, d = 3, alpha = 2, normalize = TRUE)
+g_list <- g_res$gene
+g_true <- paste0("G", 41:80)
+check_intersect(g_list, g_true)
+
+g_res <- fix_pvalue(X = X, gKO = 100, d = 3, alpha = 2, normalize = TRUE)
+g_list <- g_res$gene
+g_true <- paste0("G", 81:100)
+check_intersect(g_list, g_true)
+
