@@ -12,6 +12,7 @@ X <- scTenifoldNet::tensorDecomposition(X)
 X <- X$X
 X <- as.matrix(X)
 
+## method 1
 manifoldAlignment1 <- function(X, Y, d = 30){
   library(RSpectra)
   sharedGenes <- intersect(rownames(X), rownames(Y))
@@ -35,65 +36,10 @@ manifoldAlignment1 <- function(X, Y, d = 30){
   return(alignedNet)
 }
 
-## normalize can be 0, 1,2  1 and 2 are two different way to normalize. 0 is not to normalize.
-manifoldAlignment2 <- function(X, Y, d = 30, normalize = 0, transpose = F){
-  sharedGenes <- intersect(rownames(X), rownames(Y))
-  X <- X[sharedGenes, sharedGenes]
-  Y <- Y[sharedGenes, sharedGenes]
-  
-  if(transpose){
-    X = t(X)
-    Y = t(Y)
-  }
-  
-  wX <- X+1
-  wY <- Y+1
-  nsharedGenes = length(sharedGenes)
-  wX = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wX), cbind(t(wX), matrix(0, nsharedGenes,nsharedGenes)) )
-  wY = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wY), cbind(t(wY), matrix(0, nsharedGenes,nsharedGenes)) )
-  
-  L <- diag(length(sharedGenes )* 2)
-  wXY <- 0.9 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
-  W <- rbind(cbind(wX, wXY), cbind(t(wXY), wY))
-  
-  if(normalize == 1){
-    Wd = rowSums(W)
-    W = diag(Wd^(-0.5)) %*% W %*% diag(Wd^(-0.5))
-    W <- -W
-    diag(W) <- 1
-  }else if(normalize == 2){
-    Wd = rowSums(W)
-    W = diag(Wd^(-1)) %*% W
-    W <- -W
-    diag(W) <- 1
-  }else if(normalize == 3){
-    Wd = colSums(W)
-    W = W %*% diag(Wd^(-1))
-    W <- -W
-    diag(W) <- 1
-  }else{
-    W <- -W
-    diag(W) <- 0
-    diag(W) <- -apply(W, 2, sum)
-  }
-  
-  # E <- suppressWarnings(RSpectra::eigs_sym(W, d*2))
-  E <- suppressWarnings(RSpectra::eigs(W, d*2, which = "SR"))
-  E$values <- suppressWarnings(as.numeric(E$values))
-  E$vectors <- suppressWarnings(apply(E$vectors,2,as.numeric))
-  newOrder <- order(E$values)
-  E$values <- E$values[newOrder]
-  E$vectors <- E$vectors[,newOrder]
-  E$vectors <- E$vectors[,E$values > 1e-8]
-  alignedNet <- rbind( cbind(E$vectors[1:nsharedGenes,seq_len(d)], E$vectors[(1:nsharedGenes) + nsharedGenes,seq_len(d)]),
-                       cbind(E$vectors[(1:nsharedGenes) + nsharedGenes * 2,seq_len(d)], E$vectors[(1:nsharedGenes) + nsharedGenes * 3,seq_len(d)]))
-  colnames(alignedNet) <- c(paste0('NLMA_u_ ', seq_len(d)),paste0('NLMA_v_ ', seq_len(d)))
-  rownames(alignedNet) <- c(paste0('X_', sharedGenes), paste0('Y_', sharedGenes))
-  return(alignedNet)
-}
-
-## normalize = 1,2,3
-manifoldAlignment_normalize3 <- function(X, Y, d = 30, normalize = 1, transpose = F){
+## method 2
+manifoldAlignment2 <- function(X, Y, d = 30, transpose = F){
+  library(Matrix)
+  library(RSpectra)
   sharedGenes <- intersect(rownames(X), rownames(Y))
   X <- X[sharedGenes, sharedGenes]
   Y <- Y[sharedGenes, sharedGenes]
@@ -109,23 +55,57 @@ manifoldAlignment_normalize3 <- function(X, Y, d = 30, normalize = 1, transpose 
   diag(wY) = 0
   
   nsharedGenes = length(sharedGenes)
-  wX = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wX), cbind(t(wX), matrix(0, nsharedGenes,nsharedGenes)) )
-  wY = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wY), cbind(t(wY), matrix(0, nsharedGenes,nsharedGenes)) )
+  wX = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wX), cbind(t(wX), matrix(0, nsharedGenes,nsharedGenes)))
+  wY = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wY), cbind(t(wY), matrix(0, nsharedGenes,nsharedGenes)))
   
   L <- diag(length(sharedGenes )* 2)
   wXY <- 0.9 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
   W <- rbind(cbind(wX, wXY), cbind(t(wXY), wY))
   
-  if(normalize == 1){
-    Wd = rowSums(W)
-    W = diag(Wd^(-0.5)) %*% W %*% diag(Wd^(-0.5))
-  }else if(normalize == 2){
-    Wd = rowSums(W)
-    W = diag(Wd^(-1)) %*% W
-  }else if(normalize == 3){
-    Wd = colSums(W)
-    W = W %*% diag(Wd^(-1))
+  Wd = rowSums(W)
+  W <- diag(Wd) - W
+  W <- as(W, "sparseMatrix")  
+  
+  E <- suppressWarnings(RSpectra::eigs(W, d*2, which = "SR"))
+  E$values <- suppressWarnings(as.numeric(E$values))
+  E$vectors <- suppressWarnings(apply(E$vectors,2,as.numeric))
+  E$vectors <- E$vectors[,E$values > 1e-8]
+  alignedNet <- rbind( cbind(E$vectors[1:nsharedGenes,seq_len(d)], E$vectors[(1:nsharedGenes) + nsharedGenes,seq_len(d)]),
+                       cbind(E$vectors[(1:nsharedGenes) + nsharedGenes * 2,seq_len(d)], E$vectors[(1:nsharedGenes) + nsharedGenes * 3,seq_len(d)]))
+  colnames(alignedNet) <- c(paste0('NLMA_u_ ', seq_len(d)),paste0('NLMA_v_ ', seq_len(d)))
+  rownames(alignedNet) <- c(paste0('X_', sharedGenes), paste0('Y_', sharedGenes))
+  return(alignedNet)
+}
+
+## method 3
+manifoldAlignment_normalize <- function(X, Y, d = 30, transpose = F){
+  library(Matrix)
+  library(RSpectra)
+  sharedGenes <- intersect(rownames(X), rownames(Y))
+  X <- X[sharedGenes, sharedGenes]
+  Y <- Y[sharedGenes, sharedGenes]
+  
+  if(transpose){
+    X = t(X)
+    Y = t(Y)
   }
+  
+  wX <- X+1
+  wY <- Y+1
+  diag(wX) = 0
+  diag(wY) = 0
+  
+  nsharedGenes = length(sharedGenes)
+  wX = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wX), cbind(t(wX), matrix(0, nsharedGenes,nsharedGenes)))
+  wY = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wY), cbind(t(wY), matrix(0, nsharedGenes,nsharedGenes)))
+  
+  L <- diag(length(sharedGenes )* 2)
+  wXY <- 0.9 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
+  W <- rbind(cbind(wX, wXY), cbind(t(wXY), wY))
+  
+  Wd = rowSums(W)
+  W = diag(Wd^(-0.5)) %*% W %*% diag(Wd^(-0.5))
+  W <- as(W, "sparseMatrix")  
   
   E <- suppressWarnings(RSpectra::eigs(W, d*2, which = "LR"))
   E$values <- suppressWarnings(as.numeric(E$values))
@@ -245,13 +225,13 @@ length(g_list)
 length(g_true)
 length(intersect(g_list, g_true))
 
-##################################################################try 2, normalize = 1 #####################################################################
+##################################################################try 2 #####################################################################
 ### setting row as zero
 p_value_KO <- function(gKO){
   Y <- X
   Y[gKO,] <- 0
-  d <- 10
-  MA <- manifoldAlignment2(X,Y, d = d, normalize = 2, transpose = T)
+  d <- 2
+  MA <- manifoldAlignment2(X,Y, d = d, transpose = F)
   MA <- MA[, (d + 1): (2 * d)]
   # MA <- MA[, 1:d]
   DR <- dRegulation(MA)
@@ -352,13 +332,13 @@ length(g_list)
 length(g_true)
 length(intersect(g_list, g_true))
 
-##################################################################try 3, normalize = 1 #####################################################################
+##################################################################try 3 #####################################################################
 ### setting row as zero
 p_value_KO <- function(gKO){
   Y <- X
   Y[gKO,] <- 0
   d <- 2
-  MA <- manifoldAlignment_normalize3(X,Y, d = d, normalize = 3, transpose = F)
+  MA <- manifoldAlignment_normalize(X,Y, d = d, transpose = F)
   MA <- MA[, (d + 1): (2 * d)]
   # MA <- MA[, 1:d]
   DR <- dRegulation(MA)
