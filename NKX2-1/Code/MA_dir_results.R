@@ -32,7 +32,7 @@ length(markerGenes)
 ######################################################################################################
 
 ## sensitivity
-out_row_nnorm <- check_sensitivity(X = MA_row_nnorm, d_index = c(1:10), alpha = 1)
+out_row_nnorm <- check_sensitivity(X = MA_row_nnorm, d_index = c(1:10), alpha = 2) # 2, 0 failed
 saveRDS(out_row_nnorm, "NKX2-1/results/MA_dir_results/out_row_nnorm.rds")
 out_col_nnorm <- check_sensitivity(X = MA_col_nnorm, d_index = c(1:10), alpha = 2)
 saveRDS(out_col_nnorm, "NKX2-1/results/MA_dir_results/out_col_nnorm.rds")
