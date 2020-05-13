@@ -72,7 +72,8 @@ manifoldAlignment_norm <- function(X, Y, d = 30, transpose = F){
   wY = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wY), cbind(t(wY), matrix(0, nsharedGenes,nsharedGenes)))
   
   L <- diag(length(sharedGenes )* 2)
-  wXY <- 0.9 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
+  # wXY <- 0.9 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
+  wXY <- 0.5 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
   W <- rbind(cbind(wX, wXY), cbind(t(wXY), wY))
   
   Wd = sqrt(rowSums(W))
@@ -93,6 +94,7 @@ manifoldAlignment_norm <- function(X, Y, d = 30, transpose = F){
   return(alignedNet)
 }
 
+## not normalized method
 manifoldAlignment_nnorm <- function(X, Y, d = 30, transpose = F){
   library(Matrix)
   library(RSpectra)
@@ -115,7 +117,8 @@ manifoldAlignment_nnorm <- function(X, Y, d = 30, transpose = F){
   wY = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wY), cbind(t(wY), matrix(0, nsharedGenes,nsharedGenes)))
   
   L <- diag(length(sharedGenes )* 2)
-  wXY <- 0.9 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
+  # wXY <- 0.9 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
+  wXY <- 0.5 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
   W <- rbind(cbind(wX, wXY), cbind(t(wXY), wY))
   
   Wd = rowSums(W)
@@ -229,9 +232,18 @@ manifoldAlignment_nnorm_sym <- function(X, Y, d = 30, transpose = F){
 # gKO is knock out gene
 # alpha to decide which part
 
-fix_pvalue <- function(X, gKO, d, alpha = 1, normalize = FALSE){
+fix_pvalue <- function(X, gKO, d, alpha = 1, beta = 1, normalize = FALSE){
   Y <- X
-  Y[gKO,] <- 0
+  
+  if (beta == 1){
+    Y[gKO, ] <- 0
+  } else if(beta == 2){
+    Y[, gKO] <- 0
+  } else{
+    Y[gKO, ]<- 0
+    Y[, gKO] <- 0
+  }
+
   if (normalize == TRUE){
     MA <- manifoldAlignment_norm(X, Y, d = d)
   } else{
@@ -240,7 +252,7 @@ fix_pvalue <- function(X, gKO, d, alpha = 1, normalize = FALSE){
 
   if (alpha == 1){
     MA <- MA[, 1:d]
-  } else{
+  } else if (alpha == 2) {
     MA <- MA[, (d + 1): (2 * d)]
   }
   DR <- dRegulation(MA)
@@ -251,20 +263,24 @@ fix_pvalue <- function(X, gKO, d, alpha = 1, normalize = FALSE){
   return(DR[order(DR$p.value, decreasing = FALSE), ])
 }
 
-fix_pvalue_sym <- function(X, gKO, d, alpha = 1, normalize = FALSE){
+fix_pvalue_sym <- function(X, gKO, d, alpha = 1, beta = 1, normalize = FALSE){
   Y <- X
-  Y[gKO,] <- 0
-  if (normalize == TRUE){
-    MA <- manifoldAlignment_norm_sym(X, Y, d = d)
+  
+  if (beta == 1){
+    Y[gKO, ] <- 0
+  } else if(beta == 2){
+    Y[, gKO] <- 0
   } else{
-    MA <- manifoldAlignment_nnorm_sym(X,Y, d = d)
+    Y[gKO, ]<- 0
+    Y[, gKO] <- 0
   }
   
   if (alpha == 1){
     MA <- MA[, 1:d]
-  } else{
+  } else if(alpha == 2){
     MA <- MA[, (d + 1): (2 * d)]
-  }
+  } 
+  
   DR <- dRegulation(MA)
   DR$FC <- DR$distance^2/mean(DR$distance[-seq_len(length(gKO))]^2)
   DR$p.value <- pchisq(DR$FC, df = 1, lower.tail = FALSE)
