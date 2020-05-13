@@ -18,9 +18,9 @@ MA_col_norm <- readRDS("TREM2/results/MA_dir_results/MA_col_norm.rds")
 ######################################################################################################
 
 ## sensitivity
-out_row_nnorm <- check_sensitivity(X = MA_row_nnorm, d_index = c(1:10), alpha = 1)
+out_row_nnorm <- check_sensitivity(X = MA_row_nnorm, d_index = c(1:10), alpha = 2)
 saveRDS(out_row_nnorm, "TREM2/results/MA_dir_results/out_row_nnorm.rds")
-out_col_nnorm <- check_sensitivity(X = MA_col_nnorm, d_index = c(1:10), alpha = 2)
+out_col_nnorm <- check_sensitivity(X = MA_col_nnorm, d_index = c(1:10), alpha = 1)
 saveRDS(out_col_nnorm, "TREM2/results/MA_dir_results/out_col_nnorm.rds")
 out_both_nnorm <- check_sensitivity(X = MA_both_nnorm, d_index = c(1:10), alpha = 0)
 saveRDS(out_both_nnorm, "TREM2/results/MA_dir_results/out_both_nnorm.rds")
