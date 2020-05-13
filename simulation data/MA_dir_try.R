@@ -29,17 +29,17 @@ g_true <- paste0("G", 81:100)
 check_intersect(g_list, g_true)
 
 ## normalized method
-g_res <- fix_pvalue(X = X, gKO = 20, d = 2, alpha = 2, beta = 1, normalize = TRUE) 
+g_res <- fix_pvalue(X = X, gKO = 20, d = 2, alpha = 0, beta = 0, normalize = TRUE) 
 g_list <- g_res$gene
 g_true <- paste0("G", 16:40)
 check_intersect(g_list, g_true)
 
-g_res <- fix_pvalue(X = X, gKO = 50, d = 2, alpha = 2, beta = 1, normalize = TRUE) 
+g_res <- fix_pvalue(X = X, gKO = 41, d = 5, alpha = 0, beta = 0, normalize = TRUE) 
 g_list <- g_res$gene
 g_true <- paste0("G", 41:80)
 check_intersect(g_list, g_true)
 
-g_res <- fix_pvalue(X = X, gKO = 100, d = 2, alpha = 2, beta = 1, normalize = TRUE) 
+g_res <- fix_pvalue(X = X, gKO = 100, d = 2, alpha = 0, beta = 0, normalize = TRUE) 
 g_list <- g_res$gene
 g_true <- paste0("G", 81:100)
 check_intersect(g_list, g_true)

@@ -72,8 +72,8 @@ manifoldAlignment_norm <- function(X, Y, d = 30, transpose = F){
   wY = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wY), cbind(t(wY), matrix(0, nsharedGenes,nsharedGenes)))
   
   L <- diag(length(sharedGenes )* 2)
-  # wXY <- 0.9 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
-  wXY <- 0.5 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
+  wXY <- 0.9 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
+  # wXY <- 0.5 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
   W <- rbind(cbind(wX, wXY), cbind(t(wXY), wY))
   
   Wd = sqrt(rowSums(W))
