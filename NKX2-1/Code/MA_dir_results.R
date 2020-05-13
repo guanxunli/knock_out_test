@@ -32,9 +32,9 @@ length(markerGenes)
 ######################################################################################################
 
 ## sensitivity
-out_row_nnorm <- check_sensitivity(X = MA_row_nnorm, d_index = c(1:10), alpha = 2) # 2, 0 failed
+out_row_nnorm <- check_sensitivity(X = MA_row_nnorm, d_index = c(1:10), alpha = 2) 
 saveRDS(out_row_nnorm, "NKX2-1/results/MA_dir_results/out_row_nnorm.rds")
-out_col_nnorm <- check_sensitivity(X = MA_col_nnorm, d_index = c(1:10), alpha = 2)
+out_col_nnorm <- check_sensitivity(X = MA_col_nnorm, d_index = c(1:10), alpha = 1)
 saveRDS(out_col_nnorm, "NKX2-1/results/MA_dir_results/out_col_nnorm.rds")
 out_both_nnorm <- check_sensitivity(X = MA_both_nnorm, d_index = c(1:10), alpha = 0)
 saveRDS(out_both_nnorm, "NKX2-1/results/MA_dir_results/out_both_nnorm.rds")
@@ -61,10 +61,10 @@ out_both_nnorm <- readRDS("NKX2-1/results/MA_dir_results/out_both_nnorm.rds")
 plot_sencitivity(out_both_nnorm)
 
 ## check first d and last d
-out_row_nnorm_f <- check_fun(X = MA_row_nnorm, d = 6, alpha = 1)
+out_row_nnorm_f <- check_fun(X = MA_row_nnorm, d = 2, alpha = 1)
 length(out_row_nnorm_f$gene)
 head(out_row_nnorm_f$gene)
-out_row_nnorm_b <- check_fun(X = MA_row_nnorm, d = 6, alpha = 2)
+out_row_nnorm_b <- check_fun(X = MA_row_nnorm, d = 2, alpha = 2)
 head(out_row_nnorm_b$gene)
 length(out_row_nnorm_b$gene)
 
