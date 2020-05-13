@@ -63,11 +63,34 @@ check_fun <- function(X, d = 2, alpha = 1, fdrThreshold = 0.05, nCategories = 20
   return(out_list)
 }
 
+check_fun_fb <- function(X, d = 2, fdrThreshold = 0.05, nCategories = 20){
+  X1 <- fixPValues(X, d = d, alpha = 1)
+  X2 <- fixPValues(X, d = d, alpha = 2)
+  dGenes_1 <- X1$diffRegulation$gene[X1$diffRegulation$p.adj < 0.05]
+  dGenes_2 <- X2$diffRegulation$gene[X2$diffRegulation$p.adj < 0.05]
+  dGenes <- union(dGenes_1, dGenes_2)
+  # print(c(length(dGenes), length(intersect(markerGenes, dGenes))))
+  ## enrichment analysis
+  E <- enrichFunction(dGenes, fdrThreshold = fdrThreshold, nCategories = nCategories)
+  out_list <- list()
+  out_list$gene <- dGenes
+  out_list$enrich <- E
+  return(out_list)
+}
+
 ## check sencitivity
 check_sensitivity <- function(X, d_index, alpha = 1, fdrThreshold = 0.05, nCategories = 20){
   out_all_list <- list()
   for (i in 1:length(d_index)){
     out_all_list[[i]] <- check_fun(X, d = d_index[i], alpha = alpha, fdrThreshold = fdrThreshold, nCategories = nCategories)
+  }
+  return(out_all_list)
+}
+
+check_sensitivity_fb <- function(X, d_index, fdrThreshold = 0.05, nCategories = 20){
+  out_all_list <- list()
+  for (i in 1:length(d_index)){
+    out_all_list[[i]] <- check_fun_fb(X, d = d_index[i], fdrThreshold = fdrThreshold, nCategories = nCategories)
   }
   return(out_all_list)
 }
@@ -98,4 +121,5 @@ plot_sencitivity <- function(X){
 check_intersect <- function(gList1, gList2){
   return(c(length(gList1), length(gList2), length(intersect(gList1, gList2))))
 }
+
 

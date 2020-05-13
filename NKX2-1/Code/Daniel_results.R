@@ -80,4 +80,8 @@ head(out_ori_both0$gene)
 n <- length(out_ori_both0$gene)
 print(c(n, length(intersect(gList[1:n], out_ori_both0$gene))))
 
+check_intersect(out_ori_row0$gene, out_ori_col0$gene)
+check_intersect(out_ori_row0$gene, out_ori_both0$gene)
+check_intersect(out_ori_col0$gene, out_ori_both0$gene)
+
 
