@@ -27,19 +27,19 @@ plot_sencitivity(out_row_sym)
 out_col_sym <- readRDS("NKX2-1/results/symmetry_results/out_ori_col.rds")
 plot_sencitivity(out_col_sym)
 
-## check head gene and trivial method
+## check with trivial method
 load('NKX2-1/Daniel_Results/GSM3716703.RData')
 WT <- GSM3716703$WT
 WT <- as.matrix(WT)
 gKO <- 'Nkx2-1'
 g_wei <- abs(WT[gKO, ])
-gList <- colnames(WT)[order(g_wei, decreasing = TRUE)]
+gList <- colnames(WT)[which(g_wei > 0.4)]
 
 out_row_sym <- check_fun(X = MA_row_sym, d = 2, alpha = 1)
 length(out_row_sym$gene)
 head(out_row_sym$gene)
 n <- length(out_row_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_row_sym$gene))))
+print(c(n, length(intersect(gList, out_row_sym$gene))))
 
 out_col_sym <- check_fun(X = MA_col_sym, d = 2, alpha = 1)
 length(out_col_sym$gene)
