@@ -122,16 +122,48 @@ n <- length(out_both_nnorm_sym$gene)
 print(c(n, length(intersect(gList[1:n], out_both_nnorm_sym$gene))))
 
 ## check intersection
-check_intersect(out_row_nnorm$gene, out_col_nnorm$gene)
-check_intersect(out_row_nnorm$gene, out_both_nnorm$gene)
-check_intersect(out_col_nnorm$gene, out_both_nnorm$gene)
-check_intersect(out_row_nnorm$gene, out_ori_row0$gene)
-check_intersect(out_row_nnorm$gene, out_ori_col0$gene)
-check_intersect(out_row_nnorm$gene, out_ori_both0$gene)
-check_intersect(out_col_nnorm$gene, out_ori_both0$gene)
-check_intersect(out_col_nnorm$gene, out_ori_col0$gene)
-check_intersect(out_col_nnorm$gene, out_ori_row0$gene)
-check_intersect(out_both_nnorm$gene, out_ori_both0$gene)
-check_intersect(out_both_nnorm$gene, out_ori_col0$gene)
-check_intersect(out_both_nnorm$gene, out_ori_row0$gene)
+check_intersect(out_row_norm_sym$gene, out_col_norm_sym$gene)
+check_intersect(out_row_norm_sym$gene, out_both_norm_sym$gene)
+check_intersect(out_col_norm_sym$gene, out_both_norm_sym$gene)
+
+check_intersect(out_row_nnorm_sym$gene, out_col_nnorm_sym$gene)
+check_intersect(out_row_nnorm_sym$gene, out_both_nnorm_sym$gene)
+check_intersect(out_col_nnorm_sym$gene, out_both_nnorm_sym$gene)
+
+check_intersect(out_row_nnorm_sym$gene, out_row_norm_sym$gene)
+check_intersect(out_row_nnorm_sym$gene, out_col_norm_sym$gene)
+check_intersect(out_row_nnorm_sym$gene, out_both_norm_sym$gene)
+
+check_intersect(out_col_nnorm_sym$gene, out_row_norm_sym$gene)
+check_intersect(out_col_nnorm_sym$gene, out_col_norm_sym$gene)
+check_intersect(out_col_nnorm_sym$gene, out_both_norm_sym$gene)
+
+check_intersect(out_both_nnorm_sym$gene, out_row_norm_sym$gene)
+check_intersect(out_both_nnorm_sym$gene, out_col_norm_sym$gene)
+check_intersect(out_both_nnorm_sym$gene, out_both_norm_sym$gene)
+
+check_intersect(out_row_nnorm_sym$gene, out_ori_row0$gene)
+check_intersect(out_row_nnorm_sym$gene, out_ori_col0$gene)
+check_intersect(out_row_nnorm_sym$gene, out_ori_both0$gene)
+
+check_intersect(out_col_nnorm_sym$gene, out_ori_row0$gene)
+check_intersect(out_col_nnorm_sym$gene, out_ori_col0$gene)
+check_intersect(out_col_nnorm_sym$gene, out_ori_both0$gene)
+
+check_intersect(out_both_nnorm_sym$gene, out_ori_row0$gene)
+check_intersect(out_both_nnorm_sym$gene, out_ori_col0$gene)
+check_intersect(out_both_nnorm_sym$gene, out_ori_both0$gene)
+
+check_intersect(out_both_norm_sym$gene, out_ori_row0$gene)
+check_intersect(out_both_norm_sym$gene, out_ori_col0$gene)
+check_intersect(out_both_norm_sym$gene, out_ori_both0$gene)
+
+check_intersect(out_col_norm_sym$gene, out_ori_row0$gene)
+check_intersect(out_col_norm_sym$gene, out_ori_col0$gene)
+check_intersect(out_col_norm_sym$gene, out_ori_both0$gene)
+
+check_intersect(out_both_norm_sym$gene, out_ori_row0$gene)
+check_intersect(out_both_norm_sym$gene, out_ori_col0$gene)
+check_intersect(out_both_norm_sym$gene, out_ori_both0$gene)
+
 
