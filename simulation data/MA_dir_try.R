@@ -76,5 +76,21 @@ g_list <- g_res$gene
 g_true <- paste0("G", 81:100)
 check_intersect(g_list, g_true)
 
+## normalized new method
+g_res <- fix_pvalue_new(X = X, gKO = 20, d = 5, alpha = 2, normalize = 1) # 1 failed; 0 success.
+g_list <- g_res$gene
+g_true <- paste0("G", 16:40)
+check_intersect(g_list, g_true)
+
+g_res <- fix_pvalue_new(X = X, gKO = 50, d = 5, alpha = 2, normalize = 1) # 1 failed; 0 success.
+g_list <- g_res$gene
+g_true <- paste0("G", 41:80)
+check_intersect(g_list, g_true)
+
+g_res <- fix_pvalue_new(X = X, gKO = 100, d = 5, alpha = 2, normalize = 1) # 1 failed; 0 success.
+g_list <- g_res$gene
+g_true <- paste0("G", 81:100)
+check_intersect(g_list, g_true)
+
 
 

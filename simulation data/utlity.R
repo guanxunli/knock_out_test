@@ -226,6 +226,63 @@ manifoldAlignment_nnorm_sym <- function(X, Y, d = 30, transpose = F){
   return(alignedNet)
 }
 
+manifoldAlignment_new <- function(X, Y, d = 30, transpose = F, lambda = 0.9, normalize1 = 0){
+  library(Matrix)
+  library(RSpectra)
+  sharedGenes <- intersect(rownames(X), rownames(Y))
+  X <- X[sharedGenes, sharedGenes]
+  Y <- Y[sharedGenes, sharedGenes]
+  
+  if(transpose){
+    X = t(X)
+    Y = t(Y)
+  }
+  
+  wX <- X+1
+  wY <- Y+1
+  diag(wX) = 0
+  diag(wY) = 0
+  
+  if(normalize1 == 1){
+    rX = rowSums(wX)^(-1/2)
+    cX = colSums(wX)^(-1/2)
+    wX = diag(rX) %*% wX %*% diag(cX)
+    rY = rowSums(wY)^(-1/2)
+    cY = colSums(wY)^(-1/2)
+    wY = diag(rY) %*% wY %*% diag(cY)
+  }
+  
+  nsharedGenes = length(sharedGenes)
+  wX = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wX), cbind(t(wX), matrix(0, nsharedGenes,nsharedGenes)))
+  wY = rbind(cbind(matrix(0, nsharedGenes,nsharedGenes), wY), cbind(t(wY), matrix(0, nsharedGenes,nsharedGenes)))
+  
+  L <- diag(length(sharedGenes )* 2)
+  wXY <- lambda * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
+  W <- rbind(cbind(wX, wXY), cbind(t(wXY), wY))
+  
+  Wd = rowSums(W)
+  W <- diag(Wd) - W
+  W <- as(W, "sparseMatrix")  
+  
+  # E <- suppressWarnings(RSpectra::eigs(W, d*2, which = "SR"))
+  E <- suppressWarnings(RSpectra::eigs_sym(W, d*2, which = "SM"))
+  
+  E$values <- suppressWarnings(as.numeric(E$values))
+  E$vectors <- suppressWarnings(apply(E$vectors,2,as.numeric))
+  
+  newOrder <- order(E$values)
+  E$values <- E$values[newOrder]
+  E$vectors <- suppressWarnings(apply(E$vectors,2,as.numeric))
+  E$vectors <- E$vectors[, newOrder]
+  E$vectors <- E$vectors[,E$values > 1e-8]
+  
+  alignedNet <- rbind( cbind(E$vectors[1:nsharedGenes,seq_len(d)], E$vectors[(1:nsharedGenes) + nsharedGenes,seq_len(d)]),
+                       cbind(E$vectors[(1:nsharedGenes) + nsharedGenes * 2,seq_len(d)], E$vectors[(1:nsharedGenes) + nsharedGenes * 3,seq_len(d)]))
+  colnames(alignedNet) <- c(paste0('NLMA_u_ ', seq_len(d)),paste0('NLMA_v_ ', seq_len(d)))
+  rownames(alignedNet) <- c(paste0('X_', sharedGenes), paste0('Y_', sharedGenes))
+  return(alignedNet)
+}
+
 
 ## check results
 # X is network
@@ -288,6 +345,35 @@ fix_pvalue_sym <- function(X, gKO, d, alpha = 1, beta = 1, normalize = FALSE){
   DR <- DR[DR$p.value < 0.05, ]
   return(DR[order(DR$p.value, decreasing = FALSE), ])
 }
+
+fix_pvalue_new <- function(X, gKO, d = 30, alpha = 1, beta = 1, normalize = 1, lambda = 0.9){
+  Y <- X
+  
+  if (beta == 1){
+    Y[gKO, ] <- 0
+  } else if(beta == 2){
+    Y[, gKO] <- 0
+  } else{
+    Y[gKO, ]<- 0
+    Y[, gKO] <- 0
+  }
+  
+  MA <- manifoldAlignment_new(X, Y, d = d, transpose = F, lambda = lambda, normalize1 = normalize)
+
+  
+  if (alpha == 1){
+    MA <- MA[, 1:d]
+  } else if (alpha == 2) {
+    MA <- MA[, (d + 1): (2 * d)]
+  }
+  DR <- dRegulation(MA)
+  DR$FC <- DR$distance^2/mean(DR$distance[-seq_len(length(gKO))]^2)
+  DR$p.value <- pchisq(DR$FC, df = 1, lower.tail = FALSE)
+  DR$p.adj <- p.adjust(DR$p.value, method = 'fdr')
+  DR <- DR[DR$p.value < 0.05, ]
+  return(DR[order(DR$p.value, decreasing = FALSE), ])
+}
+
 
 ## check function
 check_intersect <- function(gList1, gList2){

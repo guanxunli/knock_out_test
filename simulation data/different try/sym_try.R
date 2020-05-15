@@ -1,8 +1,6 @@
 library(ggplot2)
 library(scTenifoldNet)
 
-col_fun = colorRamp2(c(-1, 0, 1), c("blue", "white", "red"))
-
 SERGIO <- read.csv('simulation data/SERGIO_create_sim_data/simulationOutput.csv', header = FALSE)
 rownames(SERGIO) <- paste0('G', seq_len(nrow(SERGIO)))
 colnames(SERGIO) <- paste0('C', seq_len(ncol(SERGIO)))
@@ -23,10 +21,11 @@ manifoldAlignment <- function(X, Y, d = 30){
   L <- diag(length(sharedGenes))
   wXY <- 0.9 * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
   W <- rbind(cbind(wX, wXY), cbind(t(wXY), wY))
-  W <- (W + t(W))/2
+  # W <- (W + t(W))/2
   W <- -W
   diag(W) <- 0
   diag(W) <- -apply(W, 2, sum)
+  W <- (W + t(W))/2
   # E <- suppressWarnings(RSpectra::eigs_sym(W, d*2))
   E <- suppressWarnings(RSpectra::eigs(W, d*2, which = "SR"))
   E$values <- suppressWarnings(as.numeric(E$values))
@@ -46,7 +45,7 @@ p_value_KO <- function(gKO){
   Y <- X
   Y[gKO,] <- 0
   MA <- scTenifoldNet::manifoldAlignment(X,Y)
-  MA <- MA[, 1:9]
+  MA <- MA[, 1:3]
   DR <- scTenifoldNet::dRegulation(MA)
   DR$FC <- DR$distance^2/mean(DR$distance[-seq_len(length(gKO))]^2)
   DR$p.value <- pchisq(DR$FC, df = 1, lower.tail = FALSE)
@@ -80,9 +79,7 @@ length(intersect(g_list, g_true))
 p_value_KO <- function(gKO){
   Y <- X
   Y[gKO,] <- 0
-  #Y[, gKO] <- 0
-  MA <- manifoldAlignment(X,Y, d = 35)
-  #MA <- scTenifoldNet::manifoldAlignment(X,Y, d = 10)
+  MA <- manifoldAlignment(X,Y, d = 3)
   DR <- scTenifoldNet::dRegulation(MA)
   DR$FC <- DR$distance^2/mean(DR$distance[-seq_len(length(gKO))]^2)
   # DR$FC <- DR$distance^2/mean(DR$distance^2)
