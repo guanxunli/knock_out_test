@@ -35,25 +35,25 @@ WT <- GSE130626$WT
 WT <- as.matrix(WT)
 gKO <- 'Trem2'
 g_wei <- abs(WT[gKO, ])
-gList <- colnames(WT)[order(g_wei, decreasing = TRUE)]
+gList <- colnames(WT)[which(g_wei > 0.2)]
 
 out_ori_row0 <- check_fun(X = X_ori_row0, d = 2, alpha = 1)
 length(out_ori_row0$gene)
 head(out_ori_row0$gene)
 n <- length(out_ori_row0$gene)
-print(c(n, length(intersect(gList[1:n], out_ori_row0$gene))))
+print(c(n, length(intersect(gList, out_ori_row0$gene))))
 
 out_ori_col0 <- check_fun(X = X_ori_col0, d = 2, alpha = 1)
 length(out_ori_col0$gene)
 head(out_ori_col0$gene)
 n <- length(out_ori_col0$gene)
-print(c(n, length(intersect(gList[1:n], out_ori_col0$gene))))
+print(c(n, length(intersect(gList, out_ori_col0$gene))))
 
 out_ori_both0 <- check_fun(X = X_ori_both0, d = 2, alpha = 1)
 length(out_ori_both0$gene)
 head(out_ori_both0$gene)
 n <- length(out_ori_both0$gene)
-print(c(n, length(intersect(gList[1:n], out_ori_both0$gene))))
+print(c(n, length(intersect(gList, out_ori_both0$gene))))
 
 check_intersect(out_ori_row0$gene, out_ori_col0$gene)
 check_intersect(out_ori_row0$gene, out_ori_both0$gene)

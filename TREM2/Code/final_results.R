@@ -46,37 +46,36 @@ out_both_nnorm_sym <- readRDS("TREM2/results/Final_results/out_both_nnorm_sym.rd
 plot_sencitivity(out_both_nnorm_sym)
 
 ## check with trivial method
-load('NKX2-1/Daniel_Results/GSM3716703.RData')
-WT <- GSM3716703$WT
+load("TREM2/Daniel_results/GSE130626.RData")
+WT <- GSE130626$WT
 WT <- as.matrix(WT)
-gKO <- 'Nkx2-1'
+gKO <- 'Trem2'
 g_wei <- abs(WT[gKO, ])
-gList <- colnames(WT)[order(g_wei, decreasing = TRUE)]
-
+gList <- colnames(WT)[which(g_wei > 0.2)]
 
 out_row_norm_sym <- check_fun_fb(X = MA_row_norm_sym, d = 2)
 n <- length(out_row_norm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_row_norm_sym$gene))))
+print(c(n, length(intersect(gList, out_row_norm_sym$gene))))
 
 out_col_norm_sym <- check_fun_fb(X = MA_col_norm_sym, d = 2)
 n <- length(out_col_norm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_col_norm_sym$gene))))
+print(c(n, length(intersect(gList, out_col_norm_sym$gene))))
 
 out_both_norm_sym <- check_fun_fb(X = MA_both_norm_sym, d = 2)
 n <- length(out_both_norm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_both_norm_sym$gene))))
+print(c(n, length(intersect(gList, out_both_norm_sym$gene))))
 
 out_row_nnorm_sym <- check_fun_fb(X = MA_row_nnorm_sym, d = 2)
 n <- length(out_row_nnorm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_row_nnorm_sym$gene))))
+print(c(n, length(intersect(gList, out_row_nnorm_sym$gene))))
 
 out_col_nnorm_sym <- check_fun_fb(X = MA_col_nnorm_sym, d = 2)
 n <- length(out_col_nnorm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_col_nnorm_sym$gene))))
+print(c(n, length(intersect(gList, out_col_nnorm_sym$gene))))
 
 out_both_nnorm_sym <- check_fun_fb(X = MA_both_nnorm_sym, d = 2)
 n <- length(out_both_nnorm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_both_nnorm_sym$gene))))
+print(c(n, length(intersect(gList, out_both_nnorm_sym$gene))))
 
 ## check intersection
 check_intersect(out_row_norm_sym$gene, out_col_norm_sym$gene)
