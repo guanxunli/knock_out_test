@@ -95,31 +95,33 @@ WT <- SRS4245406$WT
 WT <- as.matrix(WT)
 gKO = 'Cftr'
 g_wei <- abs(WT[gKO, ])
-gList <- colnames(WT)[order(g_wei, decreasing = TRUE)]
+gList <- colnames(WT)[which(g_wei == 0.1)]
+length(gList)
+
 
 out_row_norm_sym <- check_fun(X = MA_row_norm_sym, d = 2, alpha = 2)
 n <- length(out_row_norm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_row_norm_sym$gene))))
+print(c(n, length(intersect(gList, out_row_norm_sym$gene))))
 
 out_col_norm_sym <- check_fun(X = MA_col_norm_sym, d = 2, alpha = 1)
 n <- length(out_col_norm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_col_norm_sym$gene))))
+print(c(n, length(intersect(gList, out_col_norm_sym$gene))))
 
 out_both_norm_sym <- check_fun(X = MA_both_norm_sym, d = 2, alpha = 0)
 n <- length(out_both_norm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_both_norm_sym$gene))))
+print(c(n, length(intersect(gList, out_both_norm_sym$gene))))
 
 out_row_nnorm_sym <- check_fun(X = MA_row_nnorm_sym, d = 2, alpha = 2)
 n <- length(out_row_nnorm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_row_nnorm_sym$gene))))
+print(c(n, length(intersect(gList, out_row_nnorm_sym$gene))))
 
 out_col_nnorm_sym<- check_fun(X = MA_col_nnorm_sym, d = 2, alpha = 1)
 n <- length(out_col_nnorm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_col_nnorm_sym$gene))))
+print(c(n, length(intersect(gList, out_col_nnorm_sym$gene))))
 
 out_both_nnorm_sym <- check_fun(X = MA_both_nnorm_sym, d = 2, alpha = 0)
 n <- length(out_both_nnorm_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_both_nnorm_sym$gene))))
+print(c(n, length(intersect(gList, out_both_nnorm_sym$gene))))
 
 ## check intersection
 check_intersect(out_row_norm_sym$gene, out_col_norm_sym$gene)

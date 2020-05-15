@@ -28,31 +28,33 @@ plot_sencitivity(out_col_sym)
 out_both_sym <- readRDS("CFTR/results/symmetry_results/out_ori_both.rds")
 plot_sencitivity(out_both_sym)
 
-## check head gene and trivial method
+## check with trivial method
 load("CFTR/Daniel_results/SRS4245406.RData")
 WT <- SRS4245406$WT
 WT <- as.matrix(WT)
 gKO = 'Cftr'
 g_wei <- abs(WT[gKO, ])
-gList <- colnames(WT)[order(g_wei, decreasing = TRUE)]
+gList <- colnames(WT)[which(g_wei == 0.1)]
+length(gList)
+
 
 out_row_sym <- check_fun(X = MA_row_sym, d = 2, alpha = 1)
 length(out_row_sym$gene)
 head(out_row_sym$gene)
 n <- length(out_row_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_row_sym$gene))))
+print(c(n, length(intersect(gList, out_row_sym$gene))))
 
 out_col_sym <- check_fun(X = MA_col_sym, d = 2, alpha = 1)
 length(out_col_sym$gene)
 head(out_col_sym$gene)
 n <- length(out_col_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_col_sym$gene))))
+print(c(n, length(intersect(gList, out_col_sym$gene))))
 
 out_both_sym <- check_fun(X = MA_both_sym, d = 2, alpha = 1)
 length(out_both_sym$gene)
 head(out_both_sym$gene)
 n <- length(out_both_sym$gene)
-print(c(n, length(intersect(gList[1:n], out_both_sym$gene))))
+print(c(n, length(intersect(gList, out_both_sym$gene))))
 
 check_intersect(out_row_sym$gene, out_col_sym$gene)
 check_intersect(out_row_sym$gene, out_both_sym$gene)
