@@ -37,6 +37,14 @@ gKO <- 'Trem2'
 g_wei <- abs(WT[gKO, ])
 gList <- colnames(WT)[which(g_wei > 0.2)]
 
+## check head gene and trivial method
+load("TREM2/Daniel_results/GSE130626.RData")
+WT <- GSE130626$WT
+WT <- as.matrix(WT)
+gKO <- 'Trem2'
+g_wei <- abs(WT[, gKO ])
+gList <- colnames(WT)[which(g_wei > 0.2)]
+
 out_ori_row0 <- check_fun(X = X_ori_row0, d = 2, alpha = 1)
 length(out_ori_row0$gene)
 head(out_ori_row0$gene)

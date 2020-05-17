@@ -54,12 +54,38 @@ plot_sencitivity(out_ori_col0)
 out_ori_both0 <- readRDS("NKX2-1/results/Daniel_results/out_ori_both.rds")
 plot_sencitivity(out_ori_both0)
 
-## check with trivial method
+## check with trivial method row
 load('NKX2-1/Daniel_Results/GSM3716703.RData')
 WT <- GSM3716703$WT
 WT <- as.matrix(WT)
 gKO <- 'Nkx2-1'
 g_wei <- abs(WT[gKO, ])
+gList <- colnames(WT)[which(g_wei > 0.4)]
+
+out_ori_row0 <- check_fun(X = X_ori_row0, d = 2, alpha = 1)
+length(out_ori_row0$gene)
+head(out_ori_row0$gene)
+n <- length(out_ori_row0$gene)
+print(c(n, length(intersect(gList, out_ori_row0$gene))))
+
+out_ori_col0 <- check_fun(X = X_ori_col0, d = 2, alpha = 1)
+length(out_ori_col0$gene)
+head(out_ori_col0$gene)
+n <- length(out_ori_col0$gene)
+print(c(n, length(intersect(gList, out_ori_col0$gene))))
+
+out_ori_both0 <- check_fun(X = X_ori_both0, d = 2, alpha = 1)
+length(out_ori_both0$gene)
+head(out_ori_both0$gene)
+n <- length(out_ori_both0$gene)
+print(c(n, length(intersect(c, out_ori_both0$gene))))
+
+## check with trivial method col
+load('NKX2-1/Daniel_Results/GSM3716703.RData')
+WT <- GSM3716703$WT
+WT <- as.matrix(WT)
+gKO <- 'Nkx2-1'
+g_wei <- abs(WT[, gKO ])
 gList <- colnames(WT)[which(g_wei > 0.4)]
 
 out_ori_row0 <- check_fun(X = X_ori_row0, d = 2, alpha = 1)

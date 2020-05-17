@@ -54,7 +54,7 @@ enrichFunction <- function(gList, fdrThreshold = 0.05, nCategories = 20){
 check_fun <- function(X, d = 2, alpha = 1, fdrThreshold = 0.05, nCategories = 20){
   X <- fixPValues(X, d = d, alpha = alpha)
   dGenes <- X$diffRegulation$gene[X$diffRegulation$p.adj < 0.05]
-  # print(c(length(dGenes), length(intersect(markerGenes, dGenes))))
+  # dGenes <- X$diffRegulation$gene[X$diffRegulation$p.adj < 0.1]
   ## enrichment analysis
   E <- enrichFunction(dGenes, fdrThreshold = fdrThreshold, nCategories = nCategories)
   out_list <- list()

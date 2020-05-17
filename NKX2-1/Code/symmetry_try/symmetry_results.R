@@ -35,6 +35,14 @@ gKO <- 'Nkx2-1'
 g_wei <- abs(WT[gKO, ])
 gList <- colnames(WT)[which(g_wei > 0.4)]
 
+## check with trivial method col
+load('NKX2-1/Daniel_Results/GSM3716703.RData')
+WT <- GSM3716703$WT
+WT <- as.matrix(WT)
+gKO <- 'Nkx2-1'
+g_wei <- abs(WT[, gKO ])
+gList <- colnames(WT)[which(g_wei > 0.4)]
+
 out_row_sym <- check_fun(X = MA_row_sym, d = 2, alpha = 1)
 length(out_row_sym$gene)
 head(out_row_sym$gene)

@@ -24,7 +24,8 @@ manifoldAlignment <- function(X, Y, d = 30){
   # W <- (W + t(W))/2
   W <- -W
   diag(W) <- 0
-  diag(W) <- -apply(W, 2, sum)
+  # diag(W) <- -apply(W, 2, sum)
+  diag(W) <- -apply(W, 1, sum)
   W <- (W + t(W))/2
   # E <- suppressWarnings(RSpectra::eigs_sym(W, d*2))
   E <- suppressWarnings(RSpectra::eigs(W, d*2, which = "SR"))
