@@ -48,7 +48,7 @@ library(ggplot2)
 source('https://raw.githubusercontent.com/dosorio/utilities/master/singleCell/plotDR.R')
 source('https://raw.githubusercontent.com/dosorio/utilities/master/singleCell/plotKO.R')
 
-load('CFTR/Daniel_results/SRS4245406.RData')
+load('../Results/SRS4245406.RData')
 
 write.csv(SRS4245406$diffRegulation, file = '../Results/scTenifoldKnk_SRS4245406.csv', row.names = FALSE, quote = FALSE)
 png('../Results/drSRS4245406.png', width = 2000, height = 2000, res = 300, pointsize = 20)
@@ -64,13 +64,15 @@ MF <- gmtPathways('https://amp.pharm.mssm.edu/Enrichr/geneSetLibrary?mode=text&l
 GO <- c(CC, BP, MF)
 E <- fgseaMultilevel(GO, Z)
 E <- E[E$NES > 0 & E$padj < 0.05,]
+E$leadingEdge <- unlist(lapply(E$leadingEdge, function(X){paste0(X, collapse = ';')}))
 png('../Results/mp1_SRS4245406.png', width = 1000, height = 1000, res = 300)
 gSet <- 'positive regulation of ion transmembrane transporter activity (GO:0032414)'
 plotEnrichment(pathway = GO[[gSet]], stats = Z) +
   labs(title = 'Regulation of ion transmembrane\ntransporter activity (GO:0032414)', subtitle = paste0('FDR = ', formatC(E$padj[E$pathway %in% gSet], format = 'e', digits = 3))) +
   xlab('Gene rank') + ylab('Enrichment Score')
 dev.off()
-
+E <- E[order(E$padj),]
+write.csv('../Results/goEnrichment_CFTR.csv')
 
 MGI <- gmtPathways('https://amp.pharm.mssm.edu/Enrichr/geneSetLibrary?mode=text&libraryName=MGI_Mammalian_Phenotype_Level_4_2019')
 E <- fgseaMultilevel(MGI, Z)
