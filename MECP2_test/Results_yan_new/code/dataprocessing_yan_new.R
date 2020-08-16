@@ -102,6 +102,18 @@ dRegulation <- function(manifoldOutput, gKO){
 # SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k4_gamma1_method1.rds")
 # SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k4_gamma1_method1.rds")
 
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k2_gamma01_method0.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k2_gamma01_method0.rds")
+
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k2_gamma01_method1.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k2_gamma01_method1.rds")
+# 
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k3_gamma01_method0.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k3_gamma01_method0.rds")
+# 
+SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k3_gamma01_method1.rds")
+SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k3_gamma01_method1.rds")
+
 
 head(SRS3059998$manifoldalignment)
 head(SRS3059999$manifoldalignment)
@@ -125,7 +137,7 @@ sharedGene <- intersect(gList1, gList2)
 length(sharedGene)
 
 library(UpSetR)
-png('MECP2_test/Results_yan_new/results/411.png', width = 1300, height = 1500, res = 300)
+png('MECP2_test/Results_yan_new/results/3_01_1.png', width = 1300, height = 1500, res = 300)
 upset(fromList(list(SRS3059998 = gList1, SRS3059999 = gList2)), text.scale = 1.5)
 dev.off()
 
