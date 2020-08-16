@@ -130,7 +130,7 @@ outputList$KO <- KO
 outputList$manifoldalignment <- MA
 outputList$diffRegulation <- DR
 
-saveRDS(outputList, "SRS3059998_yan_k2_gamma1_method1.rds")
+saveRDS(outputList, "SRS3059998_yan_k4_gamma1_method1.rds")
 
 set.seed(1)
 MA <- manifoldAlignment(WT, KO, d = 5, lambda = 0.9, k = 4, gamma = 1, methoduse = 0)
@@ -142,7 +142,7 @@ outputList$KO <- KO
 outputList$manifoldalignment <- MA
 outputList$diffRegulation <- DR
 
-saveRDS(outputList, "SRS3059998_yan_k2_gamma1_method0.rds")
+saveRDS(outputList, "SRS3059998_yan_k4_gamma1_method0.rds")
 
 set.seed(1)
 MA <- manifoldAlignment(WT, KO, d = 5, lambda = 0.9, k = 4, gamma = 0.5, methoduse = 1)
@@ -154,7 +154,7 @@ outputList$KO <- KO
 outputList$manifoldalignment <- MA
 outputList$diffRegulation <- DR
 
-saveRDS(outputList, "SRS3059998_yan_k2_gamma0_method1.rds")
+saveRDS(outputList, "SRS3059998_yan_k4_gamma0_method1.rds")
 
 set.seed(1)
 MA <- manifoldAlignment(WT, KO, d = 5, lambda = 0.9, k = 4, gamma = 0.5, methoduse = 0)
@@ -166,7 +166,7 @@ outputList$KO <- KO
 outputList$manifoldalignment <- MA
 outputList$diffRegulation <- DR
 
-saveRDS(outputList, "SRS3059998_yan_k2_gamma0_method0.rds")
+saveRDS(outputList, "SRS3059998_yan_k4_gamma0_method0.rds")
 
 
 ## The second data set
@@ -185,7 +185,7 @@ outputList$KO <- KO
 outputList$manifoldalignment <- MA
 outputList$diffRegulation <- DR
 
-saveRDS(outputList, "SRS3059999_yan_k2_gamma1_method1.rds")
+saveRDS(outputList, "SRS3059999_yan_k4_gamma1_method1.rds")
 
 set.seed(1)
 MA <- manifoldAlignment(WT, KO, d = 5, lambda = 0.9, k = 4, gamma = 1, methoduse = 0)
@@ -197,7 +197,7 @@ outputList$KO <- KO
 outputList$manifoldalignment <- MA
 outputList$diffRegulation <- DR
 
-saveRDS(outputList, "SRS3059999_yan_k2_gamma1_method0.rds")
+saveRDS(outputList, "SRS3059999_yan_k4_gamma1_method0.rds")
 
 set.seed(1)
 MA <- manifoldAlignment(WT, KO, d = 5, lambda = 0.9, k = 4, gamma = 0.5, methoduse = 1)
@@ -209,7 +209,7 @@ outputList$KO <- KO
 outputList$manifoldalignment <- MA
 outputList$diffRegulation <- DR
 
-saveRDS(outputList, "SRS3059999_yan_k2_gamma0_method1.rds")
+saveRDS(outputList, "SRS3059999_yan_k4_gamma0_method1.rds")
 
 set.seed(1)
 MA <- manifoldAlignment(WT, KO, d = 5, lambda = 0.9, k = 4, gamma = 0.5, methoduse = 0)
@@ -221,4 +221,4 @@ outputList$KO <- KO
 outputList$manifoldalignment <- MA
 outputList$diffRegulation <- DR
 
-saveRDS(outputList, "SRS3059999_yan_k2_gamma0_method0.rds")
+saveRDS(outputList, "SRS3059999_yan_k4_gamma0_method0.rds")

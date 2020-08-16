@@ -9,18 +9,112 @@ library(patchwork)
 source('https://raw.githubusercontent.com/dosorio/utilities/master/singleCell/plotDR.R')
 source('https://raw.githubusercontent.com/dosorio/utilities/master/singleCell/plotKO.R')
 
+dRegulation <- function(manifoldOutput, gKO){
+  
+  geneList <- rownames(manifoldOutput)
+  geneList <- geneList[grepl('^X_', geneList)]
+  geneList <- gsub('^X_','', geneList)
+  nGenes <- length(geneList)
+  
+  eGenes <- nrow(manifoldOutput)/2
+  
+  eGeneList <- rownames(manifoldOutput)
+  eGeneList <- eGeneList[grepl('^Y_', eGeneList)]
+  eGeneList <- gsub('^Y_','', eGeneList)
+  
+  if(nGenes != eGenes){
+    stop('Number of identified and expected genes are not the same')
+  }
+  if(!all(eGeneList == geneList)){
+    stop('Genes are not ordered as expected. X_ genes should be followed by Y_ genes in the same order')
+  }
+  
+  dMetric <- sapply(seq_len(nGenes), function(G){
+    X <- manifoldOutput[G,]
+    Y <- manifoldOutput[(G+nGenes),]
+    I <- rbind(X,Y)
+    O <- stats::dist(I)
+    O <- as.numeric(O)
+    return(O)
+  })
+  
+  ### BOX-COX
+  lambdaValues <- seq(-2,2,length.out = 1000)
+  lambdaValues <- lambdaValues[lambdaValues != 0]
+  BC <- MASS::boxcox(dMetric~1, plot=FALSE, lambda = lambdaValues)
+  BC <- BC$x[which.max(BC$y)]
+  if(BC < 0){
+    nD <- 1/(dMetric ^ BC)
+  } else {
+    nD <- dMetric ^ BC
+  }
+  Z <- scale(nD)
+  dOut <- data.frame(
+    gene = geneList, 
+    distance = dMetric,
+    Z = Z
+  )
+  dOut <- dOut[order(dOut$distance, decreasing = TRUE),]
+  FC <- (dOut$distance^2)/mean((dOut$distance[-seq_len(length(gKO))]^2))
+  pValues <- pchisq(q = FC,df = 1,lower.tail = FALSE)
+  pAdjusted <- p.adjust(pValues, method = 'fdr')
+  dOut$FC = FC
+  dOut$p.value = pValues
+  dOut$p.adj = pAdjusted
+  dOut <- as.data.frame.array(dOut)
+  return(dOut)
+}
+
 
 # SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k2_gamma0_method0.rds")
 # SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k2_gamma0_method0.rds")
 
 # SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k2_gamma0_method1.rds")
 # SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k2_gamma0_method1.rds")
-# 
+
 # SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k2_gamma1_method0.rds")
 # SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k2_gamma1_method0.rds")
-# 
-SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k2_gamma1_method1.rds")
-SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k2_gamma1_method1.rds")
+
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k2_gamma1_method1.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k2_gamma1_method1.rds")
+
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k3_gamma0_method0.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k3_gamma0_method0.rds")
+
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k3_gamma0_method1.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k3_gamma0_method1.rds")
+
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k3_gamma1_method0.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k3_gamma1_method0.rds")
+
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k3_gamma1_method1.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k3_gamma1_method1.rds")
+
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k4_gamma0_method0.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k4_gamma0_method0.rds")
+
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k4_gamma0_method1.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k4_gamma0_method1.rds")
+
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k4_gamma1_method0.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k4_gamma1_method0.rds")
+
+# SRS3059998 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059998_yan_k4_gamma1_method1.rds")
+# SRS3059999 <- readRDS("MECP2_test/Results_yan_new/data/SRS3059999_yan_k4_gamma1_method1.rds")
+
+
+head(SRS3059998$manifoldalignment)
+head(SRS3059999$manifoldalignment)
+
+
+SRS3059998$manifoldalignment <- SRS3059998$manifoldalignment[, 1:3]
+SRS3059998$diffRegulation <- dRegulation(SRS3059998$manifoldalignment, gKO = "Mecp2")
+SRS3059999$manifoldalignment <- SRS3059999$manifoldalignment[, 1:3]
+SRS3059999$diffRegulation <- dRegulation(SRS3059999$manifoldalignment, gKO = "Mecp2")
+
+head(SRS3059998$diffRegulation)
+head(SRS3059999$diffRegulation)
+
 
 gList1 <- SRS3059998$diffRegulation$gene[SRS3059998$diffRegulation$p.adj < 0.05]
 gList2 <- SRS3059999$diffRegulation$gene[SRS3059999$diffRegulation$p.adj < 0.05]
@@ -31,7 +125,7 @@ sharedGene <- intersect(gList1, gList2)
 length(sharedGene)
 
 library(UpSetR)
-png('MECP2_test/Results_yan_new/results/211.png', width = 1300, height = 1500, res = 300)
+png('MECP2_test/Results_yan_new/results/411.png', width = 1300, height = 1500, res = 300)
 upset(fromList(list(SRS3059998 = gList1, SRS3059999 = gList2)), text.scale = 1.5)
 dev.off()
 
