@@ -65,7 +65,7 @@ dRegulation <- function(manifoldOutput, gKO){
 k <- 2
 gamma <- 1
 method <- 1
-O <- readRDS(paste0("AHR_test/Results_YAN_new norm/data/Ahr_yan_k", k, "_gamma", gamma, "_method", method, ".rds"))
+O <- readRDS(paste0("AHR_test/Results_YAN_new_norm/data/Ahr_yan_k", k, "_gamma", gamma, "_method", method, ".rds"))
 
 head(O$manifoldalignment)
 O$manifoldalignment <- O$manifoldalignment[, 2:3]
