@@ -4,19 +4,19 @@ library(harmony)
 library(ggplot2)
 library(ggrepel)
 
-load('../Results/Preenterocytes.RData')
+load('AHR_test/Results/Preenterocytes.RData')
 O$manifoldAlignment <- O$manifoldAlignment[!grepl('_Rpl|_Rps',rownames(O$manifoldAlignment)),]
 DR <- scTenifoldKnk:::dRegulation(O$manifoldAlignment, 'Ahr')
 O$diffRegulation <- DR
 
-WT <- readMM('../Data/Preenterocytes_WT.mtx')
-rownames(WT) <- readLines('../Data/Preenterocytes_WT_genes.txt')
-colnames(WT) <- readLines('../Data/Preenterocytes_WT_barcodes.txt')
+WT <- readMM('AHR_test/Data/Preenterocytes_WT.mtx')
+rownames(WT) <- readLines('AHR_test/Data/Preenterocytes_WT_genes.txt')
+colnames(WT) <- readLines('AHR_test/Data/Preenterocytes_WT_barcodes.txt')
 WT <- WT[!grepl('^MT-|^RPL|^RPS',rownames(WT), ignore.case = TRUE),]
 
-KO <- readMM('../Data/Preenterocytes_KO.mtx')
-rownames(KO) <- readLines('../Data/Preenterocytes_KO_genes.txt')
-colnames(KO) <- readLines('../Data/Preenterocytes_KO_barcodes.txt')
+  KO <- readMM('AHR_test/Data/Preenterocytes_KO.mtx')
+rownames(KO) <- readLines('AHR_test/Data/Preenterocytes_KO_genes.txt')
+colnames(KO) <- readLines('AHR_test/Data/Preenterocytes_KO_barcodes.txt')
 KO <- KO[!grepl('^MT-|^RPL|^RPS',rownames(KO), ignore.case = TRUE),]
 
 WT <- CreateSeuratObject(WT, project = 'WT')
@@ -30,6 +30,7 @@ ALL <- RunPCA(ALL)
 ALL <- RunHarmony(ALL, group.by.vars = 'orig.ident')
 ALL <- RunTSNE(ALL, reduction = 'harmony')
 ALL <- RunUMAP(ALL, reduction = 'harmony', dims = 1:50)
+ALL <- RunUMAP(ALL, reduction = 'pca', dims = 1:50)
 UMAPPlot(ALL)
 
 DE <- FindMarkers(ALL, ident.1 = 'KO', ident.2 = 'WT', test.use = 'MAST', logfc.threshold = 0)
