@@ -89,7 +89,7 @@ ggplot(dF, aes(FC, P, label = G)) + geom_point(color = dF$COL, alpha = gT) + xli
 dev.off()
 
 
-drZ <- DR$Z
+drZ <- DR$distance
 names(drZ) <- toupper(DR$gene)
 
 drList <- DR$gene
