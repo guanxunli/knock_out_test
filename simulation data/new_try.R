@@ -84,8 +84,56 @@ check_intersect <- function(gList1, gList2){
 #   return(alignedNet)
 # }
 
+# ## modify yan
+# manifoldAlignment <- function(X, Y, d = 5, lambda = 0.9){
+#   sharedGenes <- intersect(rownames(X), rownames(Y))
+#   X <- X[sharedGenes, sharedGenes]
+#   n = dim(X)[1]
+#   Y <- Y[sharedGenes, sharedGenes]
+#   L <- diag(length(sharedGenes))
+#   wX <- X + 1
+#   wY <- Y + 1
+#   wXY <- lambda * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
+#   W <- rbind(cbind(wX, wXY), cbind(t(wXY), wY))
+#   diag(W) <- 0
+# 
+#   Drow <- apply(abs(W), 1, sum)
+#   # Dcol <- apply(abs(W), 2, sum)
+#   Dcol <- c(apply(abs(X),2,sum), apply(abs(Y),2,sum)) + mean(c(apply(abs(X),2,sum), apply(abs(Y),2,sum)))* lambda
+# 
+#   W <- Matrix(W)
+# 
+#   W = diag(Dcol) - W * (Drow^(-1)) * Dcol
+#   W = t(W) %*% W
+# 
+#   E <- suppressWarnings(RSpectra::eigs(W, d*3, 'SR'))
+#   E$values <- suppressWarnings(as.numeric(E$values))
+#   E$vectors <- suppressWarnings(apply(E$vectors,2,as.numeric))
+#   newOrder <- order(E$values)
+#   E$values <- E$values[newOrder]
+#   E$vectors <- E$vectors[,newOrder]
+#   E$vectors <- E$vectors[,E$values > 1e-8]
+#   alignedNet <- E$vectors[,seq_len(d)]
+#   colnames(alignedNet) <- paste0('NLMA ', seq_len(d))
+#   rownames(alignedNet) <- c(paste0('X_', sharedGenes), paste0('Y_', sharedGenes))
+#   return(alignedNet)
+# }
+
 ## modify yan
-manifoldAlignment <- function(X, Y, d = 5, lambda = 0.9){
+dirtect_L <- function(x){
+  x <- t(t(x) / colSums(x))
+  e <- suppressWarnings(RSpectra::eigs(t(x), 1, 'LR'))
+  Phi <- as.numeric(e$vectors)
+  if (Phi[1] < 0){
+    Phi <- - Phi
+  }
+  tmp1 <- diag(sqrt(Phi)) %*% x %*% diag(1/(sqrt(Phi)))
+  tmp2 <- diag(1/sqrt(Phi)) %*% t(x) %*% diag(sqrt(Phi))
+  L <- diag(1, nrow(x)) - (tmp1 + tmp2)/2
+  return(L)
+}
+
+manifoldAlignment <- function(X, Y, d = 5, lambda = 1.5){
   sharedGenes <- intersect(rownames(X), rownames(Y))
   X <- X[sharedGenes, sharedGenes]
   n = dim(X)[1]
@@ -93,26 +141,34 @@ manifoldAlignment <- function(X, Y, d = 5, lambda = 0.9){
   L <- diag(length(sharedGenes))
   wX <- X + 1
   wY <- Y + 1
+  
+  
+  ## different laplace
+  # Lx <- dirtect_L(wX)
+  # Ly <- dirtect_L(wY)
+  # 
+  # Lx_diag <- diag(Lx)
+  # Ly_diag <- diag(Ly)
+  # diag(Lx) <- 0
+  # diag(Ly) <- 0
+  # 
+  # LXY <- lambda * (sum(Lx) + sum(Ly)) / (2 * sum(L)) * L
+  # 
+  # L <- rbind(cbind(Lx, LXY), cbind(t(LXY), Ly))
+  # diag(L) <- -apply(L, 2, sum)
+  
+  ## same laplace
   wXY <- lambda * (sum(wX) + sum(wY)) / (2 * sum(L)) * L
   W <- rbind(cbind(wX, wXY), cbind(t(wXY), wY))
-  diag(W) <- 0
+  L <- dirtect_L(W)
 
-  Drow <- apply(abs(W), 1, sum)
-  # Dcol <- apply(abs(W), 2, sum)
-  Dcol <- c(apply(abs(X),2,sum), apply(abs(Y),2,sum)) + mean(c(apply(abs(X),2,sum), apply(abs(Y),2,sum)))* lambda
-
-  W <- Matrix(W)
-
-  W = diag(Dcol) - W * (Drow^(-1)) * Dcol
-  W = t(W) %*% W
-
-  E <- suppressWarnings(RSpectra::eigs(W, d*3, 'SR'))
+  E <- suppressWarnings(RSpectra::eigs(L, d*2, 'SR'))
   E$values <- suppressWarnings(as.numeric(E$values))
   E$vectors <- suppressWarnings(apply(E$vectors,2,as.numeric))
   newOrder <- order(E$values)
   E$values <- E$values[newOrder]
   E$vectors <- E$vectors[,newOrder]
-  E$vectors <- E$vectors[,E$values > 1e-8]
+  E$vectors <- E$vectors[,E$values > 1e-4]
   alignedNet <- E$vectors[,seq_len(d)]
   colnames(alignedNet) <- paste0('NLMA ', seq_len(d))
   rownames(alignedNet) <- c(paste0('X_', sharedGenes), paste0('Y_', sharedGenes))
@@ -122,8 +178,8 @@ manifoldAlignment <- function(X, Y, d = 5, lambda = 0.9){
 p_value_KO <- function(gKO){
   Y <- X
   Y[gKO,] <- 0
-  MA <- manifoldAlignment(X,Y)
-  MA <- MA[, 1:5]
+  MA <- manifoldAlignment(X,Y, d = 5)
+  MA <- MA[, 1:3]
   DR <- dRegulation(MA)
   DR$FC <- DR$distance^2/mean(DR$distance[-seq_len(length(gKO))]^2)
   DR$p.value <- pchisq(DR$FC, df = 1, lower.tail = FALSE)
