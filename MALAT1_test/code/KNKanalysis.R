@@ -9,14 +9,19 @@ BIOP <- gmtPathways('https://amp.pharm.mssm.edu/Enrichr/geneSetLibrary?mode=text
 REACTOME <- gmtPathways('https://amp.pharm.mssm.edu/Enrichr/geneSetLibrary?mode=text&libraryName=Reactome_2016')
 
 #### DE ####
-WT <- readMM('WT.mtx')
-rownames(WT) <- readLines('genesWT.txt')
-colnames(WT) <- readLines('barcodesWT.txt')
+WT <- Read10X_h5('MALAT1_test/data/WT.h5')
+WT <- as.matrix(WT)
+genesWT <- readLines('MALAT1_test/data/genesWT.txt')
+barcodesWT <- readLines('MALAT1_test/data/barcodesWT.txt')
+WT <- WT[genesWT, ]
+WT <- WT[, barcodesWT]
 WT <-WT[!rownames(WT) %in% 'Malat1',]
 
-KO <- readMM('KO.mtx')
-rownames(KO) <- readLines('genesKO.txt')
-colnames(KO) <- readLines('barcodesKO.txt')
+KO <- Read10X_h5('MALAT1_test/data/KO.h5')
+genesKO <- readLines('MALAT1_test/data/genesKO.txt')
+barcodesKO <- readLines('MALAT1_test/data/barcodesKO.txt')
+KO <- KO[genesKO, ]
+KO <- KO[, barcodesKO]
 KO <- KO[!rownames(KO) %in% 'Malat1',]
 
 WT <- CreateSeuratObject(WT, project = 'WT')
