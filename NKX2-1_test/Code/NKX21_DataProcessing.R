@@ -41,14 +41,14 @@ source('https://raw.githubusercontent.com/dosorio/utilities/master/singleCell/pl
 source('https://raw.githubusercontent.com/dosorio/utilities/master/singleCell/plotKO.R')
 source('https://raw.githubusercontent.com/dosorio/utilities/master/idConvert/hsa2mmu_SYMBOL.R')
 
-load('../Results/NKX21__YC_GSM3716703.RData')
+load('NKX2-1_test/Results/NKX21__YC_GSM3716703.RData')
 GSM3716703 <- WT
-markerGenes <- read.csv('../Data/pnas.1906663116.sd01.csv', stringsAsFactors = FALSE, row.names = 1)
+markerGenes <- read.csv('NKX2-1_test/Data/pnas.1906663116.sd01.csv', stringsAsFactors = FALSE, row.names = 1)
 markerGenes$T.test.p.value <- as.numeric(markerGenes$T.test.p.value)
 markerGenes <- markerGenes[complete.cases(markerGenes),]
 markerGenesAT1 <- markerGenes$gene_short_name[markerGenes$T.test.p.value < 0.05]
 
-markerGenes <- read.csv('../Data/pnas.1906663116.sd05.csv', stringsAsFactors = FALSE)
+markerGenes <- read.csv('NKX2-1_test/Data/pnas.1906663116.sd05.csv', stringsAsFactors = FALSE)
 markerGenes <- markerGenes[,1:10]
 markerGenes$T.test.p.value <- as.numeric(markerGenes$T.test.p.value)
 markerGenes <- markerGenes[complete.cases(markerGenes),]
